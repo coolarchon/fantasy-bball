@@ -1,0 +1,4 @@
+# Only deploy index.html
+*
+!index.html
+!.gitignore
