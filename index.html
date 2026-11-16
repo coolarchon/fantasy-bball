@@ -93,7 +93,7 @@
     border: 1px dashed var(--border); border-radius: 12px; font-size: 14px; }
   footer { margin-top: 18px; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
   #leagueRosters { margin-top: 16px; }
-  .lroster { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; }
+  .lroster { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; overflow-x: auto; }
   .lroster summary { cursor: pointer; font-weight: 600; font-size: 14px; }
   .lroster summary:hover { color: var(--accent); }
   .lroster table { min-width: 0; width: 100%; margin-top: 10px; }
@@ -128,7 +128,7 @@ body.tab-compare .tablewrap th .sub { display: block; margin-top: 2px; white-spa
     <h1><span class="ball">&#9679;</span> NBA Fantasy Hub</h1>
     <button id="themeBtn" type="button">Light mode</button>
   </header>
-  <div class="updated">Last updated: Sunday, Nov 15, 2026 at 3:59 AM PT</div>
+  <div class="updated">Last updated: Monday, Nov 16, 2026 at 12:16 AM PT</div>
   <div class="sub" id="subtitle"></div>
 
   <div class="tabs">
@@ -614,16 +614,17 @@ function renderLeague() {
     const ps = t.players || [];
     ro += '<details class="lroster"><summary>' + (t.is_you ? '\u2605 ' : '') + t.name + (t.manager ? ' <span class="sub">(' + t.manager + ')</span>' : '') + ' \u2014 ' + ps.length + ' players</summary>';
     const usgHidden = state.hidden.has('USG');
-    ro += '<table><thead><tr><th>Player</th><th>Status</th><th class="num">G</th>' + (usgHidden ? '' : '<th class="num">USG%</th>') + '<th class="num">Pts/G</th><th class="num">Reb/G</th><th class="num">Ast/G</th><th class="num">3P/G</th><th class="num">Stl/G</th><th class="num">Blk/G</th><th class="num">FG%</th><th class="num">FT%</th><th class="num">TOV/G</th></tr></thead><tbody>';
+    ro += '<table><thead><tr><th>Player</th><th>Status</th><th class="num">Rank</th><th class="num">G</th>' + (usgHidden ? '' : '<th class="num">USG%</th>') + '<th class="num">Pts/G</th><th class="num">Reb/G</th><th class="num">Ast/G</th><th class="num">3P/G</th><th class="num">Stl/G</th><th class="num">Blk/G</th><th class="num">FG%</th><th class="num">FT%</th><th class="num">TOV/G</th></tr></thead><tbody>';
     for (const p of ps) {
       const st = p.status || 'ACTIVE';
-      ro += '<tr><td class="name">' + p.name + subline(p) + '</td><td><span class="' + (/INACT|IR/i.test(st) ? 'stbadge ir' : 'stbadge') + '">' + st + '</span></td>';
+      const pRank = h2hRanks[normName(p.name)] || null;
+      ro += '<tr><td class="name">' + p.name + subline(p) + '</td><td><span class="' + (/INACT|IR/i.test(st) ? 'stbadge ir' : 'stbadge') + '">' + st + '</span></td><td class="num rankcell">' + (pRank ? '#' + pRank : '<span class="dash">\u2014</span>') + '</td>';
       if (p.G) {
         const threePG = (p.t3 !== null && p.t3 !== undefined) ? Math.round(p.t3 / p.G * 100) / 100 : null;
         const vals = [p.G, ...(usgHidden ? [] : [p.USG]), p.PTS, p.REB, p.AST, threePG, p.STL, p.BLK, p['FG%'], p['FT%'], p.TOV];
         for (const v of vals) ro += '<td class="num">' + (v === null || v === undefined ? '<span class="dash">\u2014</span>' : String(v)) + '</td>';
       } else {
-        ro += '<td class="num" colspan="' + (usgHidden ? 10 : 11) + '"><span class="dash">no stats in current data</span></td>';
+        ro += '<td class="num" colspan="' + (usgHidden ? 11 : 12) + '"><span class="dash">no stats in current data</span></td>';
       }
       ro += '</tr>';
     }
